@@ -1,0 +1,11 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.iml
+.idea/
+.vscode/
+*.class
+*.log
+lulumart-data/
+h2-*.mv.db
+h2-*.trace.db
+h2-*.lock.db

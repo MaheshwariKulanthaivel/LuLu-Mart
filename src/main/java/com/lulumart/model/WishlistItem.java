@@ -1,0 +1,108 @@
+package com.lulumart.model;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+public class WishlistItem {
+
+    private long id;
+    private long wishlistId;
+    private long productId;
+    private LocalDateTime createdAt;
+
+    private String productName;
+    private String petType;
+    private String category;
+    private String imageUrl;
+    private BigDecimal price;
+    private int stockQty;
+    private String sellerName;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getWishlistId() {
+        return wishlistId;
+    }
+
+    public void setWishlistId(long wishlistId) {
+        this.wishlistId = wishlistId;
+    }
+
+    public long getProductId() {
+        return productId;
+    }
+
+    public void setProductId(long productId) {
+        this.productId = productId;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public String getPetType() {
+        return petType;
+    }
+
+    public void setPetType(String petType) {
+        this.petType = petType;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public int getStockQty() {
+        return stockQty;
+    }
+
+    public void setStockQty(int stockQty) {
+        this.stockQty = stockQty;
+    }
+
+    public String getSellerName() {
+        return sellerName;
+    }
+
+    public void setSellerName(String sellerName) {
+        this.sellerName = sellerName;
+    }
+}
