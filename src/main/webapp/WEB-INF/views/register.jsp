@@ -12,7 +12,12 @@
         </div>
 
         <c:if test="${not empty error}">
-            <div class="alert alert-error"><c:out value="${error}"/></div>
+            <div class="alert alert-error">
+                <c:out value="${error}"/>
+                <c:if test="${fn:contains(error, 'already exists')}">
+                    <a href="${ctx}/auth/login">Log in instead</a>.
+                </c:if>
+            </div>
         </c:if>
 
         <form method="post" action="${ctx}/auth/register" class="auth-form" id="registerForm">
@@ -29,15 +34,29 @@
             </div>
             <div class="field">
                 <label for="password">Password (min 8, with letter and number)</label>
-                <input type="password" id="password" name="password" required
-                       pattern="^(?=.*[A-Za-z])(?=.*\d).{8,}$"
-                       placeholder="At least 8 characters" autocomplete="new-password"/>
+                <div class="pwd-wrap">
+                    <input type="password" id="password" name="password" required
+                           pattern="^(?=.*[A-Za-z])(?=.*\d).{8,}$"
+                           placeholder="At least 8 characters" autocomplete="new-password"/>
+                    <button type="button" class="pwd-toggle" aria-pressed="false"
+                            aria-label="Show password" title="Show/hide password">
+                        <svg class="eye-on" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="32" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M255.66 112c-77.94 0-157.89 45.11-220.83 132.35a16 16 0 0 0 0 17.4C97.77 380.89 177.72 426 255.66 426s157.89-45.11 220.83-164.65a16 16 0 0 0 0-17.4C413.55 157.11 333.6 112 255.66 112z"/><circle cx="256" cy="256" r="64"/></svg>
+                        <svg class="eye-off" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="32" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M255.66 112c-77.94 0-157.89 45.11-220.83 132.35a16 16 0 0 0 0 17.4C97.77 380.89 177.72 426 255.66 426s157.89-45.11 220.83-164.65a16 16 0 0 0 0-17.4C413.55 157.11 333.6 112 255.66 112z"/><circle cx="256" cy="256" r="64"/><line x1="100" y1="100" x2="412" y2="412"/></svg>
+                    </button>
+                </div>
                 <small class="muted" id="passwordHint">Use at least 8 characters with at least one letter and one number.</small>
             </div>
             <div class="field">
                 <label for="confirmPassword">Confirm Password</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" required
-                       placeholder="Re-enter your password" autocomplete="new-password"/>
+                <div class="pwd-wrap">
+                    <input type="password" id="confirmPassword" name="confirmPassword" required
+                           placeholder="Re-enter your password" autocomplete="new-password"/>
+                    <button type="button" class="pwd-toggle" aria-pressed="false"
+                            aria-label="Show password" title="Show/hide password">
+                        <svg class="eye-on" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="32" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M255.66 112c-77.94 0-157.89 45.11-220.83 132.35a16 16 0 0 0 0 17.4C97.77 380.89 177.72 426 255.66 426s157.89-45.11 220.83-164.65a16 16 0 0 0 0-17.4C413.55 157.11 333.6 112 255.66 112z"/><circle cx="256" cy="256" r="64"/></svg>
+                        <svg class="eye-off" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="32" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M255.66 112c-77.94 0-157.89 45.11-220.83 132.35a16 16 0 0 0 0 17.4C97.77 380.89 177.72 426 255.66 426s157.89-45.11 220.83-164.65a16 16 0 0 0 0-17.4C413.55 157.11 333.6 112 255.66 112z"/><circle cx="256" cy="256" r="64"/><line x1="100" y1="100" x2="412" y2="412"/></svg>
+                    </button>
+                </div>
                 <small class="field-error hidden" id="confirmHint">Passwords do not match.</small>
             </div>
             <div class="field">
@@ -54,33 +73,6 @@
     </div>
 </div>
 
-<script>
-(function () {
-    var form = document.getElementById('registerForm');
-    var password = document.getElementById('password');
-    var confirmPassword = document.getElementById('confirmPassword');
-    var confirmHint = document.getElementById('confirmHint');
-    var submitBtn = document.getElementById('submitBtn');
-
-    function checkMatch() {
-        var ok = password.value === confirmPassword.value && password.value.length > 0;
-        confirmHint.classList.toggle('hidden', ok);
-        confirmPassword.classList.toggle('invalid', !ok);
-    }
-    confirmPassword.addEventListener('input', checkMatch);
-    password.addEventListener('input', checkMatch);
-
-    form.addEventListener('submit', function (e) {
-        if (password.value !== confirmPassword.value) {
-            e.preventDefault();
-            checkMatch();
-            confirmPassword.focus();
-            return;
-        }
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Creating account...';
-    });
-})();
-</script>
+<script src="${ctx}/js/auth.js" defer></script>
 
 <%@ include file="/WEB-INF/views/includes/footer.jsp" %>

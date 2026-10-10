@@ -98,9 +98,9 @@ public class AuthServlet extends HttpServlet {
         try {
             User user = authService.register(name, email, password, confirm, role);
             consumeToken(req);
-            invalidateSession(req);
-            log.info("New account registered: {} ({})", user.getEmail(), user.getRole());
-            resp.sendRedirect(req.getContextPath() + "/auth/login?registered=1");
+            establishSession(req, user);
+            log.info("New account registered and auto-logged-in: {} ({})", user.getEmail(), user.getRole());
+            resp.sendRedirect(req.getContextPath() + "/");
         } catch (AppException e) {
             req.setAttribute("error", e.getMessage());
             setCsrfToken(req);

@@ -803,6 +803,27 @@ p { margin: 0 0 1rem; }
 .field-error { color: var(--red); font-size: 0.8rem; }
 .field input.invalid { border-color: var(--red); }
 
+.pwd-wrap { position: relative; }
+.pwd-wrap input { padding-right: 2.75rem; }
+.pwd-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.3rem;
+    transform: translateY(-50%);
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    padding: 0.4rem;
+    display: flex;
+    align-items: center;
+    color: var(--muted);
+    border-radius: 0.35rem;
+}
+.pwd-toggle:hover { color: var(--green); }
+.pwd-toggle .eye-off { display: none; }
+.pwd-toggle.is-visible .eye-on { display: none; }
+.pwd-toggle.is-visible .eye-off { display: block; }
+
 .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
 
 .auth-alt { font-size: 0.9rem; text-align: center; margin: 1rem 0 0.4rem; }
