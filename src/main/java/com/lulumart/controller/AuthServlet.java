@@ -15,11 +15,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.UUID;
 
 @WebServlet("/auth/*")
 public class AuthServlet extends HttpServlet {
 
     private static final Logger log = LoggerFactory.getLogger(AuthServlet.class);
+    private static final String CSRF_TOKEN = "csrfToken";
+
     private final AuthService authService = new AuthService();
 
     @Override
@@ -27,8 +30,22 @@ public class AuthServlet extends HttpServlet {
             throws ServletException, IOException {
         String path = req.getPathInfo() == null ? "" : req.getPathInfo();
         switch (path) {
-            case "/login" -> req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
-            case "/register" -> req.getRequestDispatcher("/WEB-INF/views/register.jsp").forward(req, resp);
+            case "/login" -> {
+                if (WebUtil.currentUser(req) != null) {
+                    resp.sendRedirect(req.getContextPath() + "/");
+                    return;
+                }
+                setCsrfToken(req);
+                req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
+            }
+            case "/register" -> {
+                if (WebUtil.currentUser(req) != null) {
+                    resp.sendRedirect(req.getContextPath() + "/");
+                    return;
+                }
+                setCsrfToken(req);
+                req.getRequestDispatcher("/WEB-INF/views/register.jsp").forward(req, resp);
+            }
             default -> resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
@@ -46,19 +63,33 @@ public class AuthServlet extends HttpServlet {
     }
 
     private void doLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        if (!isValidToken(req)) {
+            req.setAttribute("error", "Your session expired. Please try again.");
+            setCsrfToken(req);
+            forwardSafe(req, resp, "/WEB-INF/views/login.jsp");
+            return;
+        }
         String email = req.getParameter("email");
         String password = req.getParameter("password");
         try {
             User user = authService.login(email, password);
+            consumeToken(req);
             establishSession(req, user);
             redirectAfterLogin(req, resp, user);
         } catch (AppException e) {
             req.setAttribute("error", e.getMessage());
+            setCsrfToken(req);
             forwardSafe(req, resp, "/WEB-INF/views/login.jsp");
         }
     }
 
     private void doRegister(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        if (!isValidToken(req)) {
+            req.setAttribute("error", "Your session expired. Please try again.");
+            setCsrfToken(req);
+            forwardSafe(req, resp, "/WEB-INF/views/register.jsp");
+            return;
+        }
         String name = req.getParameter("name");
         String email = req.getParameter("email");
         String password = req.getParameter("password");
@@ -66,21 +97,31 @@ public class AuthServlet extends HttpServlet {
         String role = req.getParameter("role");
         try {
             User user = authService.register(name, email, password, confirm, role);
-            establishSession(req, user);
+            consumeToken(req);
+            invalidateSession(req);
             log.info("New account registered: {} ({})", user.getEmail(), user.getRole());
-            redirectAfterLogin(req, resp, user);
+            resp.sendRedirect(req.getContextPath() + "/auth/login?registered=1");
         } catch (AppException e) {
             req.setAttribute("error", e.getMessage());
+            setCsrfToken(req);
             forwardSafe(req, resp, "/WEB-INF/views/register.jsp");
         }
     }
 
     private void doLogout(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        invalidateSession(req);
+        resp.sendRedirect(req.getContextPath() + "/");
+    }
+
+    private void invalidateSession(HttpServletRequest req) {
         HttpSession session = req.getSession(false);
         if (session != null) {
-            session.invalidate();
+            try {
+                session.invalidate();
+            } catch (IllegalStateException ignored) {
+                // already invalidated
+            }
         }
-        resp.sendRedirect(req.getContextPath() + "/");
     }
 
     private void establishSession(HttpServletRequest req, User user) {
@@ -107,6 +148,29 @@ public class AuthServlet extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/seller/dashboard");
         } else {
             resp.sendRedirect(req.getContextPath() + "/shop");
+        }
+    }
+
+    private void setCsrfToken(HttpServletRequest req) {
+        String token = UUID.randomUUID().toString();
+        req.getSession(true).setAttribute(CSRF_TOKEN, token);
+        req.setAttribute(CSRF_TOKEN, token);
+    }
+
+    private boolean isValidToken(HttpServletRequest req) {
+        HttpSession session = req.getSession(false);
+        if (session == null) {
+            return false;
+        }
+        Object expected = session.getAttribute(CSRF_TOKEN);
+        String provided = req.getParameter(CSRF_TOKEN);
+        return expected != null && provided != null && expected.equals(provided);
+    }
+
+    private void consumeToken(HttpServletRequest req) {
+        HttpSession session = req.getSession(false);
+        if (session != null) {
+            session.removeAttribute(CSRF_TOKEN);
         }
     }
 

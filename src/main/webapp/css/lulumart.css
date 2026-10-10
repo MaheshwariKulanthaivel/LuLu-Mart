@@ -799,6 +799,10 @@ p { margin: 0 0 1rem; }
     border-color: var(--green);
 }
 
+.hidden { display: none !important; }
+.field-error { color: var(--red); font-size: 0.8rem; }
+.field input.invalid { border-color: var(--red); }
+
 .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
 
 .auth-alt { font-size: 0.9rem; text-align: center; margin: 1rem 0 0.4rem; }

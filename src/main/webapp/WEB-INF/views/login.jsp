@@ -11,15 +11,20 @@
             <p class="muted">Log in to shop, track orders and more.</p>
         </div>
 
+        <c:if test="${param.registered == '1'}">
+            <div class="alert alert-success">Your account was created successfully! You can now log in with your credentials.</div>
+        </c:if>
         <c:if test="${not empty error}">
             <div class="alert alert-error"><c:out value="${error}"/></div>
         </c:if>
 
         <form method="post" action="${ctx}/auth/login" class="auth-form">
             <input type="hidden" name="next" value="${fn:escapeXml(param.next)}">
+            <input type="hidden" name="csrfToken" value="${fn:escapeXml(csrfToken)}">
             <div class="field">
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" required autofocus placeholder="you@example.com"/>
+                <input type="email" id="email" name="email" required autofocus placeholder="you@example.com"
+                       value="${fn:escapeXml(param.email)}"/>
             </div>
             <div class="field">
                 <label for="password">Password</label>

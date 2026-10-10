@@ -74,6 +74,10 @@ public class UserDao {
             return user;
         } catch (SQLException e) {
             log.error("insert user failed for email {}", user.getEmail(), e);
+            String state = e.getSQLState();
+            if (state != null && state.startsWith("23")) {
+                throw new com.lulumart.exception.BadRequestException("An account with this email already exists");
+            }
             throw new RuntimeException("Could not register user");
         }
     }
